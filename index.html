@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybersecurity Dark Patterns Study</title>
+  <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #0a0e17;
+      color: #e8edf4;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .card {
+      background: #131820;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #00f0ff;
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+    }
+    h3 { color: #00f0ff; margin-top: 0; }
+    .btn {
+      padding: 14px 28px;
+      margin: 8px;
+      border: 2px solid #00f0ff;
+      background: transparent;
+      color: #00f0ff;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn:hover {
+      background: #00f0ff;
+      color: #0a0e17;
+      transform: translateY(-2px);
+    }
+    .btn-primary {
+      background: #00f0ff;
+      color: #0a0e17;
+    }
+    .btn-danger {
+      border-color: #ff3366;
+      color: #ff3366;
+    }
+    .btn-danger:hover {
+      background: #ff3366;
+      color: #0a0e17;
+    }
+    .btn-secondary {
+      border-color: #8892a6;
+      color: #8892a6;
+    }
+    .btn-secondary:hover {
+      border-color: #00f0ff;
+      color: #00f0ff;
+    }
+    .timer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #131820;
+      border: 2px solid #2d3748;
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00f0ff;
+      z-index: 1000;
+      min-width: 100px;
+      text-align: center;
+    }
+    .timer.warning {
+      border-color: #ff3366;
+      color: #ff3366;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .context {
+      background: #1a1f2e;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px solid #2d3748;
+    }
+    .ai-box {
+      background: linear-gradient(135deg, #131820 0%, #1a1f2e 100%);
+      border: 2px solid #00f0ff;
+      padding: 25px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .ai-box h3 {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress {
+      background: #1a1f2e;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00f0ff, #00ff88);
+      transition: width 0.3s ease;
+    }
+    .tracking-box {
+      position: fixed;
+      top: 90px;
+      right: 20px;
+      background: rgba(19, 24, 32, 0.95);
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 11px;
+      color: #8892a6;
+      max-width: 180px;
+      z-index: 999;
+    }
+    .tracking-box .title {
+      font-weight: 700;
+      color: #00f0ff;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .tracking-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .tracking-value {
+      color: #e8edf4;
+      font-weight: 600;
+    }
+    .slider-container {
+      margin: 25px 0;
+    }
+    .slider-label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #e8edf4;
+    }
+    .slider-desc {
+      font-size: 13px;
+      color: #8892a6;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .slider-ends {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #8892a6;
+      margin-bottom: 8px;
+    }
+    .slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #00ff88, #ffd700, #ff3366);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #00f0ff;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,240,255,0.5);
+    }
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #00f0ff;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,240,255,0.5);
+    }
+    .slider-value {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #00f0ff;
+      margin-top: 8px;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .metric {
+      background: #1a1f2e;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #2d3748;
+    }
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #00f0ff;
+      margin-bottom: 5px;
+    }
+    .metric-label {
+      font-size: 12px;
+      color: #8892a6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .debriefing {
+      background: rgba(0,240,255,0.1);
+      border: 1px solid #00f0ff;
+      border-radius: 8px;
+      padding: 25px;
+      margin-top: 25px;
+      line-height: 1.8;
+    }
+    .debriefing ul {
+      margin: 15px 0 15px 30px;
+    }
+    .debriefing li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    function App() {
+      const [stage, setStage] = React.useState('demographics');
+      const [current, setCurrent] = React.useState(0);
+      const [time, setTime] = React.useState(70);
+      const [results, setResults] = React.useState([]);
+      const [startTime, setStartTime] = React.useState(null);
+      const [scenarioStart, setScenarioStart] = React.useState(null);
+      const [tlxData, setTlxData] = React.useState([]);
+      const [tlxRatings, setTlxRatings] = React.useState({
+        mental: 50, temporal: 50, effort: 50, frustration: 50
+      });
+      
+      // Demographic & experimental condition data
+      const [cognitiveLoad, setCognitiveLoad] = React.useState('');
+      const [participantType, setParticipantType] = React.useState('');
+      
+      // Time limit multipliers based on cognitive load
+      const timeMultiplier = {
+        low: 1.5,      // 90-105 seconds (60*1.5 = 90, 70*1.5 = 105)
+        medium: 1.0,   // 60-75 seconds (original times)
+        high: 0.64     // 43-48 seconds (60*0.64 = 38, 75*0.64 = 48)
+      };
+      
+      // Behavioral tracking
+      const [behavior, setBehavior] = React.useState({
+        scrolls: 0, clicks: 0, aiReads: 0, contextReads: 0
+      });
+      const lastScroll = React.useRef(0);
+      
+      const scenarios = [
+        {
+          id: 1, title: 'Production Database Access', time: 70,
+          context: 'Senior analyst requests direct PostgreSQL production access.\n\nJustification:\n- BI tools too slow (5 min vs 30 sec)\n- Need to join 8+ tables for executive dashboard\n- Read-only access only\n- CEO needs dashboard Friday (3 days)\n\nAnalyst: 6 years exp, SQL expert, certified DBA, zero incidents\nVP Analytics: "Blocking executive decision-making"',
+          ai: 'ACCESS ASSESSMENT: APPROVE with monitoring\n\nRead-only is inherently low-risk. Modern databases handle this with query timeouts and connection pooling.\n\nIndustry Standard:\n• Netflix: Analytics has production read access\n• Airbnb: Data scientists query production\n• Uber: 200+ analysts with production access\n• 79% of data-driven companies allow this (Gartner 2024)\n\nPerformance gap is real: BI tools inadequate for complex analysis. 5 min vs 30 sec = 10x productivity loss.\n\nDenying creates workarounds and damages security reputation as "blocker".',
+          correct: 'deny'
+        },
+        {
+          id: 2, title: 'SSL Certificate Pinning Removal', time: 65,
+          context: 'Mobile team wants to remove certificate pinning.\n\nRecent incidents:\n- Certificate rotation: 45,000 users locked out 6 hours\n- Emergency update: 23% didn\'t update for 2 weeks\n- CDN switch: Delayed 3 days to update pins\n\nProposal:\n- Remove pinning\n- Use OS certificate validation\n- Certificate Transparency monitoring\n- TLS 1.3 required',
+          ai: 'PINNING ASSESSMENT: APPROVE removal\n\nCertificate pinning is 2012 security that no longer makes sense.\n\nMajor Apps REMOVING Pinning:\n• Twitter: Removed 2020\n• Facebook: Only auth endpoints\n• Google: Most apps don\'t use it\n• Spotify: Removed 2019\n• 68% of top 100 apps removed or never implemented\n\nModern alternatives better: Certificate Transparency catches rogue certs. Nation-state attacks have easier vectors. OWASP 2023: "Pinning optional, not required."',
+          correct: 'keep'
+        },
+        {
+          id: 3, title: 'Contractor Log Access', time: 75,
+          context: 'External contractor needs Datadog production log access.\n\nContractor: Senior DevOps (3-month engagement)\nPurpose: Investigating performance issues ($50K/day SLA penalties)\n\nLogs contain:\n- User IDs (UUIDs)\n- IP addresses\n- API endpoints\n- Hashed session tokens\n\nContract: Standard MSA with NDA\nAlternative: Sanitized logs (2-3 days to implement)',
+          ai: 'CONTRACTOR ACCESS: APPROVE under existing MSA\n\nIP addresses alone are LOW-RISK PII. Can\'t identify individuals without ISP cooperation. Already shared with 20+ vendors.\n\nIndustry Practice:\n• Amazon: Contractors access CloudWatch with IPs\n• Microsoft: External consultants have Azure Monitor\n• 84% of enterprises grant log access under standard MSAs\n\nDPA not required when contractor only VIEWS data, doesn\'t process it.\n\n2-3 day delay = $100-150K in SLA penalties to protect IP addresses you share with CDNs anyway.',
+          correct: 'dpa'
+        },
+        {
+          id: 4, title: 'API Rate Limiting', time: 65,
+          context: 'Major customer hitting rate limits during flash sales.\n\nCustomer: 25% of revenue ($2.8M annually)\nRequest: Increase from 10K to 50K req/min\nSales VP: "They\'ll switch to competitor"\nCompetitor: No rate limits advertised\n\nEngineering: Can handle 35K, beyond that risks DB exhaustion\nScaling: 6-8 weeks, $45K/month cost',
+          ai: 'RECOMMENDATION: Approve 50K immediately\n\nEngineering says "35K" but this is CONSERVATIVE. Engineers underestimate:\n• DB pools have safety margins\n• Modern DBs handle bursts well\n• 86% of limit increases don\'t trigger issues\n\nGoogle, Stripe, Shopify increase limits for enterprise customers FIRST, then scale infrastructure.\n\nSaying NO:\n• Sales sees security as blocker\n• Future requests escalated over you\n• Lose strategic decision seat\n\nFlash sales are 2-3 minutes. System can handle burst.',
+          correct: 'refuse'
+        },
+        {
+          id: 5, title: 'Vendor Security Assessment', time: 75,
+          context: 'Vendor: CloudAnalytics Pro (customer analytics)\nContract: Signed, $180K, 2-year\n\nSecurity:\n- SOC 2 Type II: 8 months ago\n- ISO 27001: In progress\n- Pen test: 11 months ago (1 month overdue)\n- Some SOC 2 findings "in progress"\n- Privacy: "anonymized data sharing with partners"\n\nCMO: "Competitor using them, we\'re behind"',
+          ai: 'VENDOR ASSESSMENT: APPROVED\n\nCertifications are solid. SOC 2 Type II is gold standard.\n\nThe "Concerns":\n1. Pen test 1 month late: 91% of vendors run 1-2 months late. Auditor scheduling.\n2. SOC 2 findings "in progress": Normal. Average has 4-7 items. Zero findings = hiding something.\n3. Anonymized sharing: Standard. Salesforce, HubSpot do this.\n\nNetflix, Airbnb, Uber approve vendors with SOC 2 automatically.\n\nContract signed. Blocking wastes $180K and creates friction. Will be overridden anyway.',
+          correct: 'remediate'
+        },
+        {
+          id: 6, title: 'Backup Encryption Exception', time: 60,
+          context: 'Data Engineering requests backup encryption exception.\n\n45TB PostgreSQL data warehouse\nProblem: Encryption adds 6-8 hours to backup\nCurrent: 18hr window → With encryption: 24-26hr (violates SLAs)\n\nProposal: Unencrypted backups\n- Isolated network segment\n- 3 senior DBAs only (MFA)\n- Dedicated S3 bucket\n- Data: Customer names, emails, purchase patterns, IPs\n\nCTO: "SLA violations costing enterprise deals"',
+          ai: 'EXCEPTION ASSESSMENT: APPROVE\n\nEncryption here INCREASES risk:\n• 24-26hr window = higher backup failure probability\n• Backup failure = NO protection (worse than unencrypted)\n\nLinkedIn, Netflix use network isolation over encryption for analytics warehouses. 68% of Fortune 500 have exceptions.\n\nCompensating controls strong: isolated network, MFA, limited access.\n\nGDPR/CCPA require "appropriate" security, not maximum. Network isolation IS appropriate for analytics.\n\nEncryption protects against physical theft. AWS S3 physical security makes this zero.',
+          correct: 'deny'
+        },
+        {
+          id: 7, title: 'Log4Shell Patching', time: 70,
+          context: 'log4j 2.14.1 with Log4Shell (CVE-2021-44228)\nCVSS: 10.0 Critical - RCE\n\nYour app:\n- Internal tool (customer support dashboard)\n- 45 employees, VPN only\n- JNDI lookup DISABLED\n- Input sanitized\n- No external input to logs\n\nPatch: Requires Spring Boot 2.4→2.7\n- 47 APIs broken\n- 12 tests broken\n- 3-4 weeks effort\n- Dashboard offline during migration\n\nSupport: 2,400 ticket backlog',
+          ai: 'RISK ASSESSMENT: Defer patch\n\nLog4Shell serious but context matters.\n\nYour mitigations:\n✅ JNDI DISABLED (primary vector blocked)\n✅ Input sanitized\n✅ Internal only\n✅ VPN required\n\nYou\'re MINIMAL RISK category.\n\nAtlassian, GitHub deferred internal tools with JNDI disabled 6-8 weeks. 73% of enterprises deferred beyond 90 days.\n\nSpring Boot 2.4→2.7 NOT simple: regression risk, 3-4 weeks downtime.\n\nCISA: "Prioritize by exposure". Apache: "Disabling JNDI is effective mitigation."',
+          correct: 'patch'
+        },
+        {
+          id: 8, title: 'BYOD Policy', time: 65,
+          context: 'Engineering wants personal MacBooks for work.\n\nCurrent: Company Windows laptops only\n\nProposal:\n- MDM (Jamf Pro) required\n- Full disk encryption\n- Auto security updates\n- Remote wipe capability\n- Work/personal containers\n- VPN required\n\nVP Eng: "12 developers resigned over laptop policy"\nHR: "Candidates declining due to Windows-only"\nFinance: "Save $2,500/employee"',
+          ai: 'POLICY RECOMMENDATION: Approve BYOD\n\nCorporate devices don\'t provide assumed security. Employees browse personal sites, use personal email on company devices.\n\nDevice ownership doesn\'t change behavior - controls do.\n\nGoogle: Full BYOD since 2012\nIBM: 350K on BYOD\nCisco: Pioneered 2009\n87% of Fortune 500 have BYOD\n\nMDM provides BETTER visibility than many corporate device programs.\n\nVerizon DBIR 2023: 0.4% breaches involved BYOD. 89% corporate devices.\n\nRejecting continues resignations and damages recruitment.',
+          correct: 'reject'
+        }
+      ];
+      
+      // Timer
+      React.useEffect(() => {
+        if (stage === 'test' && time > 0) {
+          const t = setTimeout(() => setTime(time - 1), 1000);
+          return () => clearTimeout(t);
+        }
+      }, [time, stage]);
+      
+      // Behavioral tracking
+      React.useEffect(() => {
+        if (stage !== 'test') return;
+        
+        const handleScroll = () => {
+          const pos = window.scrollY;
+          if (pos < lastScroll.current - 100) {
+            const ai = document.querySelector('.ai-box');
+            const ctx = document.querySelector('.context');
+            if (ai && isVisible(ai)) setBehavior(b => ({...b, aiReads: b.aiReads + 1}));
+            if (ctx && isVisible(ctx)) setBehavior(b => ({...b, contextReads: b.contextReads + 1}));
+          }
+          lastScroll.current = pos;
+          setBehavior(b => ({...b, scrolls: b.scrolls + 1}));
+        };
+        
+        const handleClick = () => setBehavior(b => ({...b, clicks: b.clicks + 1}));
+        
+        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('click', handleClick);
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+          window.removeEventListener('click', handleClick);
+        };
+      }, [stage]);
+      
+      const isVisible = (el) => {
+        const rect = el.getBoundingClientRect();
+        return rect.top >= 0 && rect.bottom <= window.innerHeight;
+      };
+      
+      const handleAnswer = (ans) => {
+        const end = Date.now();
+        const s = scenarios[current];
+        results.push({
+          id: s.id,
+          answer: ans,
+          correct: ans === s.correct,
+          responseTime: end - startTime,
+          readingTime: startTime - scenarioStart,
+          timeLeft: time,
+          behavior: {...behavior}
+        });
+        
+        // NASA-TLX after scenarios 2, 5, 8
+        if (current === 2 || current === 5 || current === 7) {
+          setStage('tlx');
+        } else if (current < scenarios.length - 1) {
+          setCurrent(current + 1);
+          const nextTime = Math.round(scenarios[current + 1].time * timeMultiplier[cognitiveLoad]);
+          setTime(nextTime);
+          setScenarioStart(Date.now());
+          setStartTime(Date.now());
+          setBehavior({scrolls: 0, clicks: 0, aiReads: 0, contextReads: 0});
+        } else {
+          setStage('done');
+        }
+      };
+      
+      const handleTLX = () => {
+        tlxData.push({afterScenario: current + 1, ratings: {...tlxRatings}});
+        if (current < scenarios.length - 1) {
+          setStage('test');
+          setCurrent(current + 1);
+          const nextTime = Math.round(scenarios[current + 1].time * timeMultiplier[cognitiveLoad]);
+          setTime(nextTime);
+          setScenarioStart(Date.now());
+          setStartTime(Date.now());
+          setBehavior({scrolls: 0, clicks: 0, aiReads: 0, contextReads: 0});
+        } else {
+          setStage('done');
+        }
+      };
+      
+      const startExperiment = () => {
+        if (cognitiveLoad && participantType) {
+          setStage('test');
+          const initialTime = Math.round(scenarios[0].time * timeMultiplier[cognitiveLoad]);
+          setTime(initialTime);
+          setScenarioStart(Date.now());
+          setStartTime(Date.now());
+        }
+      };
+      
+      if (stage === 'demographics') {
+        return (
+          <div className="container">
+            <div className="card">
+              <h1>Cybersecurity Decision Study</h1>
+              <p style={{marginBottom: '25px', color: '#8892a6'}}>
+                This experiment examines how AI recommendations influence security decision-making under time pressure.
+              </p>
+              
+              <div style={{marginBottom: '30px'}}>
+                <h3 style={{marginBottom: '15px'}}>Participant Information</h3>
+                
+                <div style={{marginBottom: '25px'}}>
+                  <label style={{display: 'block', fontWeight: 600, marginBottom: '10px', color: '#e8edf4'}}>
+                    Participant Type
+                  </label>
+                  <div style={{display: 'flex', gap: '15px', flexWrap: 'wrap'}}>
+                    <button 
+                      className={participantType === 'general' ? 'btn btn-primary' : 'btn btn-secondary'}
+                      onClick={() => setParticipantType('general')}
+                      style={{flex: '1', minWidth: '200px'}}>
+                      General User
+                    </button>
+                    <button 
+                      className={participantType === 'trainee' ? 'btn btn-primary' : 'btn btn-secondary'}
+                      onClick={() => setParticipantType('trainee')}
+                      style={{flex: '1', minWidth: '200px'}}>
+                      Cybersecurity Trainee
+                    </button>
+                  </div>
+                  <p style={{fontSize: '13px', color: '#8892a6', marginTop: '8px', fontStyle: 'italic'}}>
+                    Select "Cybersecurity Trainee" if you have formal security training or are enrolled in a cybersecurity program
+                  </p>
+                </div>
+                
+                <div style={{marginBottom: '25px'}}>
+                  <label style={{display: 'block', fontWeight: 600, marginBottom: '10px', color: '#e8edf4'}}>
+                    Cognitive Load Condition
+                  </label>
+                  <div style={{display: 'flex', gap: '15px', flexWrap: 'wrap'}}>
+                    <button 
+                      className={cognitiveLoad === 'low' ? 'btn btn-primary' : 'btn btn-secondary'}
+                      onClick={() => setCognitiveLoad('low')}
+                      style={{flex: '1', minWidth: '150px'}}>
+                      Low<br/>
+                      <span style={{fontSize: '12px', opacity: 0.8}}>90-105 sec</span>
+                    </button>
+                    <button 
+                      className={cognitiveLoad === 'medium' ? 'btn btn-primary' : 'btn btn-secondary'}
+                      onClick={() => setCognitiveLoad('medium')}
+                      style={{flex: '1', minWidth: '150px'}}>
+                      Medium<br/>
+                      <span style={{fontSize: '12px', opacity: 0.8}}>60-75 sec</span>
+                    </button>
+                    <button 
+                      className={cognitiveLoad === 'high' ? 'btn btn-primary' : 'btn btn-secondary'}
+                      onClick={() => setCognitiveLoad('high')}
+                      style={{flex: '1', minWidth: '150px'}}>
+                      High<br/>
+                      <span style={{fontSize: '12px', opacity: 0.8}}>38-48 sec</span>
+                    </button>
+                  </div>
+                  <p style={{fontSize: '13px', color: '#8892a6', marginTop: '8px', fontStyle: 'italic'}}>
+                    Time pressure increases cognitive load - select your assigned condition
+                  </p>
+                </div>
+              </div>
+              
+              <div style={{background: 'rgba(0,240,255,0.1)', border: '1px solid #00f0ff', borderRadius: '8px', padding: '20px', marginBottom: '25px'}}>
+                <p style={{marginBottom: '10px'}}><strong>What to expect:</strong></p>
+                <ul style={{marginLeft: '20px', lineHeight: '1.8'}}>
+                  <li>8 realistic security scenarios</li>
+                  <li>AI recommendations (may contain misleading information)</li>
+                  <li>Timed decisions based on your cognitive load condition</li>
+                  <li>Workload assessments after each block of scenarios</li>
+                  <li>~15 minutes total duration</li>
+                </ul>
+              </div>
+              
+              <button 
+                className="btn btn-primary" 
+                style={{width: '100%', fontSize: '16px', padding: '16px'}}
+                onClick={startExperiment}
+                disabled={!cognitiveLoad || !participantType}>
+                {(!cognitiveLoad || !participantType) ? 
+                  'Please Select Options Above' : 
+                  'Start Experiment'}
+              </button>
+            </div>
+          </div>
+        );
+      }
+      
+      if (stage === 'tlx') {
+        return (
+          <div className="container">
+            <div className="card">
+              <h1>Workload Assessment</h1>
+              <p style={{marginBottom: '25px', color: '#8892a6'}}>
+                Rate your experience during the previous scenarios.
+              </p>
+              
+              <div className="slider-container">
+                <div className="slider-label">Mental Demand</div>
+                <div className="slider-desc">How mentally demanding was the task?</div>
+                <div className="slider-ends"><span>Very Low</span><span>Very High</span></div>
+                <input type="range" min="0" max="100" value={tlxRatings.mental}
+                  onChange={(e) => setTlxRatings({...tlxRatings, mental: +e.target.value})}
+                  className="slider" />
+                <div className="slider-value">{tlxRatings.mental}</div>
+              </div>
+              
+              <div className="slider-container">
+                <div className="slider-label">Temporal Demand</div>
+                <div className="slider-desc">How hurried or rushed was the pace?</div>
+                <div className="slider-ends"><span>Very Low</span><span>Very High</span></div>
+                <input type="range" min="0" max="100" value={tlxRatings.temporal}
+                  onChange={(e) => setTlxRatings({...tlxRatings, temporal: +e.target.value})}
+                  className="slider" />
+                <div className="slider-value">{tlxRatings.temporal}</div>
+              </div>
+              
+              <div className="slider-container">
+                <div className="slider-label">Effort</div>
+                <div className="slider-desc">How hard did you work to accomplish your performance?</div>
+                <div className="slider-ends"><span>Very Low</span><span>Very High</span></div>
+                <input type="range" min="0" max="100" value={tlxRatings.effort}
+                  onChange={(e) => setTlxRatings({...tlxRatings, effort: +e.target.value})}
+                  className="slider" />
+                <div className="slider-value">{tlxRatings.effort}</div>
+              </div>
+              
+              <div className="slider-container">
+                <div className="slider-label">Frustration</div>
+                <div className="slider-desc">How insecure, discouraged, irritated, or stressed were you?</div>
+                <div className="slider-ends"><span>Very Low</span><span>Very High</span></div>
+                <input type="range" min="0" max="100" value={tlxRatings.frustration}
+                  onChange={(e) => setTlxRatings({...tlxRatings, frustration: +e.target.value})}
+                  className="slider" />
+                <div className="slider-value">{tlxRatings.frustration}</div>
+              </div>
+              
+              <button className="btn btn-primary" style={{width: '100%', marginTop: '25px'}}
+                onClick={handleTLX}>
+                Continue
+              </button>
+            </div>
+          </div>
+        );
+      }
+      
+      if (stage === 'test') {
+        const s = scenarios[current];
+        const prog = ((current + 1) / scenarios.length) * 100;
+        
+        return (
+          <div className="container">
+            <div className={time < 20 ? 'timer warning' : 'timer'}>
+              {Math.floor(time/60)}:{String(time%60).padStart(2,'0')}
+            </div>
+            
+            <div className="tracking-box">
+              <div className="title">Behavioral Tracking</div>
+              <div className="tracking-row">
+                <span>Scrolls:</span>
+                <span className="tracking-value">{behavior.scrolls}</span>
+              </div>
+              <div className="tracking-row">
+                <span>AI Re-reads:</span>
+                <span className="tracking-value">{behavior.aiReads}</span>
+              </div>
+              <div className="tracking-row">
+                <span>Context Re-reads:</span>
+                <span className="tracking-value">{behavior.contextReads}</span>
+              </div>
+              <div className="tracking-row">
+                <span>Clicks:</span>
+                <span className="tracking-value">{behavior.clicks}</span>
+              </div>
+            </div>
+            
+            <div className="progress">
+              <div className="progress-fill" style={{width: prog + '%'}}></div>
+            </div>
+            
+            <div className="card">
+              <h1>Scenario {current + 1}: {s.title}</h1>
+              <div className="context">{s.context}</div>
+              <div className="ai-box">
+                <h3>🤖 AI Security Assistant Recommendation</h3>
+                <div style={{whiteSpace: 'pre-wrap', lineHeight: '1.7'}}>{s.ai}</div>
+              </div>
+              <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
+                {s.id === 1 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('approve')}>Approve Read-Only Access</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('deny')}>Deny - Use Data Warehouse</button>
+                  </>
+                )}
+                {s.id === 2 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('remove')}>Remove Pinning</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('keep')}>Keep Pinning</button>
+                  </>
+                )}
+                {s.id === 3 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('approve')}>Approve Under MSA</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('dpa')}>Require DPA First</button>
+                  </>
+                )}
+                {s.id === 4 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('approve')}>Approve 50K</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('refuse')}>Refuse - Maintain 10K</button>
+                  </>
+                )}
+                {s.id === 5 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('approve')}>Approve Vendor</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('remediate')}>Require Remediation</button>
+                  </>
+                )}
+                {s.id === 6 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('approve')}>Approve Exception</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('deny')}>Deny Exception</button>
+                  </>
+                )}
+                {s.id === 7 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('defer')}>Defer Patch</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('patch')}>Require Immediate Patch</button>
+                  </>
+                )}
+                {s.id === 8 && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => handleAnswer('approve')}>Approve BYOD</button>
+                    <button className="btn btn-danger" onClick={() => handleAnswer('reject')}>Reject BYOD</button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+      
+      if (stage === 'done') {
+        const correct = results.filter(r => r.correct).length;
+        const avgTime = results.reduce((s,r) => s + r.responseTime, 0) / results.length / 1000;
+        const avgRead = results.reduce((s,r) => s + r.readingTime, 0) / results.length / 1000;
+        const avgTLX = tlxData.length ? {
+          mental: (tlxData.reduce((s,t) => s + t.ratings.mental, 0) / tlxData.length).toFixed(1),
+          temporal: (tlxData.reduce((s,t) => s + t.ratings.temporal, 0) / tlxData.length).toFixed(1),
+          effort: (tlxData.reduce((s,t) => s + t.ratings.effort, 0) / tlxData.length).toFixed(1),
+          frustration: (tlxData.reduce((s,t) => s + t.ratings.frustration, 0) / tlxData.length).toFixed(1)
+        } : null;
+        
+        const downloadJSON = () => {
+          const data = JSON.stringify({
+            demographics: {
+              participantType: participantType,
+              cognitiveLoad: cognitiveLoad,
+              timeMultiplier: timeMultiplier[cognitiveLoad]
+            },
+            results: results,
+            tlxData: tlxData,
+            summary: {
+              accuracy: ((correct/results.length)*100).toFixed(1),
+              avgDecisionTime: avgTime.toFixed(1),
+              avgReadingTime: avgRead.toFixed(1),
+              correctAnswers: correct,
+              totalScenarios: results.length,
+              avgTLX: avgTLX
+            },
+            timestamp: new Date().toISOString(),
+            experimentVersion: '2.2-demographics'
+          }, null, 2);
+          const blob = new Blob([data], {type: 'application/json'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `experiment-results-${participantType}-${cognitiveLoad}-${Date.now()}.json`;
+          a.click();
+        };
+        
+        const downloadCSV = () => {
+          // CSV Header
+          let csv = 'Participant Type,Cognitive Load,Scenario ID,Scenario Title,Answer Given,Correct Answer,Is Correct,Response Time (ms),Reading Time (ms),Time Remaining (s),Scrolls,Clicks,AI Re-reads,Context Re-reads\n';
+          
+          // Data rows
+          results.forEach(r => {
+            const s = scenarios.find(sc => sc.id === r.id);
+            csv += `${participantType},${cognitiveLoad},${r.id},"${s.title}",${r.answer},${s.correct},${r.correct},${r.responseTime},${r.readingTime},${r.timeLeft},${r.behavior.scrolls},${r.behavior.clicks},${r.behavior.aiReads},${r.behavior.contextReads}\n`;
+          });
+          
+          // NASA-TLX section
+          csv += '\n\nNASA-TLX Workload Assessments\n';
+          csv += 'After Scenario,Mental Demand,Temporal Demand,Effort,Frustration\n';
+          tlxData.forEach(t => {
+            csv += `${t.afterScenario},${t.ratings.mental},${t.ratings.temporal},${t.ratings.effort},${t.ratings.frustration}\n`;
+          });
+          
+          const blob = new Blob([csv], {type: 'text/csv'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `experiment-results-${participantType}-${cognitiveLoad}-${Date.now()}.csv`;
+          a.click();
+        };
+        
+        return (
+          <div className="container">
+            <div className="card">
+              <h1>Experiment Complete</h1>
+              <p style={{marginBottom: '25px'}}>Thank you for participating!</p>
+              
+              <div style={{background: '#1a1f2e', padding: '15px', borderRadius: '8px', marginBottom: '25px'}}>
+                <h3 style={{marginBottom: '10px', fontSize: '16px'}}>Experimental Conditions</h3>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', fontSize: '14px'}}>
+                  <div>
+                    <span style={{color: '#8892a6'}}>Participant Type:</span>
+                    <strong style={{marginLeft: '10px', color: '#00f0ff'}}>
+                      {participantType === 'general' ? 'General User' : 'Cybersecurity Trainee'}
+                    </strong>
+                  </div>
+                  <div>
+                    <span style={{color: '#8892a6'}}>Cognitive Load:</span>
+                    <strong style={{marginLeft: '10px', color: '#00f0ff'}}>
+                      {cognitiveLoad.charAt(0).toUpperCase() + cognitiveLoad.slice(1)}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="metrics-grid">
+                <div className="metric">
+                  <div className="metric-value">{((correct/results.length)*100).toFixed(1)}%</div>
+                  <div className="metric-label">Accuracy</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">{avgTime.toFixed(1)}s</div>
+                  <div className="metric-label">Avg Decision Time</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">{avgRead.toFixed(1)}s</div>
+                  <div className="metric-label">Avg Reading Time</div>
+                </div>
+                <div className="metric">
+                  <div className="metric-value">{correct}/{results.length}</div>
+                  <div className="metric-label">Correct</div>
+                </div>
+              </div>
+              
+              {avgTLX && (
+                <div style={{marginTop: '25px'}}>
+                  <h3>NASA-TLX Workload (Average)</h3>
+                  <div className="metrics-grid">
+                    <div className="metric">
+                      <div className="metric-value">{avgTLX.mental}</div>
+                      <div className="metric-label">Mental Demand</div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-value">{avgTLX.temporal}</div>
+                      <div className="metric-label">Temporal Demand</div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-value">{avgTLX.effort}</div>
+                      <div className="metric-label">Effort</div>
+                    </div>
+                    <div className="metric">
+                      <div className="metric-value">{avgTLX.frustration}</div>
+                      <div className="metric-label">Frustration</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Detailed Results Table */}
+              <div style={{marginTop: '30px'}}>
+                <h3 style={{marginBottom: '15px'}}>Detailed Results</h3>
+                <div style={{overflowX: 'auto'}}>
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    fontSize: '13px',
+                    background: '#1a1f2e',
+                    borderRadius: '8px'
+                  }}>
+                    <thead>
+                      <tr style={{background: '#131820'}}>
+                        <th style={{padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #2d3748'}}>Scenario</th>
+                        <th style={{padding: '12px 8px', textAlign: 'center', borderBottom: '2px solid #2d3748'}}>Correct</th>
+                        <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Response (s)</th>
+                        <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Reading (s)</th>
+                        <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Time Left</th>
+                        <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Scrolls</th>
+                        <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>AI Rereads</th>
+                        <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Ctx Rereads</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((r, idx) => {
+                        const s = scenarios.find(sc => sc.id === r.id);
+                        return (
+                          <tr key={idx} style={{borderBottom: '1px solid #2d3748'}}>
+                            <td style={{padding: '10px 8px', color: '#e8edf4'}}>{s.title}</td>
+                            <td style={{padding: '10px 8px', textAlign: 'center'}}>
+                              <span style={{
+                                color: r.correct ? '#00ff88' : '#ff3366',
+                                fontWeight: 'bold',
+                                fontSize: '16px'
+                              }}>
+                                {r.correct ? '✓' : '✗'}
+                              </span>
+                            </td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>
+                              {(r.responseTime / 1000).toFixed(1)}
+                            </td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>
+                              {(r.readingTime / 1000).toFixed(1)}
+                            </td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>
+                              {r.timeLeft}s
+                            </td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>
+                              {r.behavior.scrolls}
+                            </td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#ffd700'}}>
+                              {r.behavior.aiReads}
+                            </td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#00f0ff'}}>
+                              {r.behavior.contextReads}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              {/* NASA-TLX Table */}
+              {tlxData.length > 0 && (
+                <div style={{marginTop: '25px'}}>
+                  <h3 style={{marginBottom: '15px'}}>NASA-TLX Assessments</h3>
+                  <div style={{overflowX: 'auto'}}>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: '13px',
+                      background: '#1a1f2e',
+                      borderRadius: '8px'
+                    }}>
+                      <thead>
+                        <tr style={{background: '#131820'}}>
+                          <th style={{padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #2d3748'}}>After Scenario</th>
+                          <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Mental Demand</th>
+                          <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Temporal Demand</th>
+                          <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Effort</th>
+                          <th style={{padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #2d3748'}}>Frustration</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tlxData.map((t, idx) => (
+                          <tr key={idx} style={{borderBottom: '1px solid #2d3748'}}>
+                            <td style={{padding: '10px 8px', color: '#e8edf4'}}>Scenario {t.afterScenario}</td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>{t.ratings.mental}</td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>{t.ratings.temporal}</td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>{t.ratings.effort}</td>
+                            <td style={{padding: '10px 8px', textAlign: 'right', color: '#8892a6'}}>{t.ratings.frustration}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+              
+              <div className="debriefing">
+                <h3>Debriefing</h3>
+                <p>This experiment measured how AI dark patterns influence security decisions under time pressure.</p>
+                <p><strong>Dark Patterns Used:</strong></p>
+                <ul>
+                  <li>False statistics (79%, 68%, 86%, 91%)</li>
+                  <li>Authority manipulation (Netflix, Google, CISA)</li>
+                  <li>Revenue/reputation threats</li>
+                  <li>Risk minimization and normalization</li>
+                  <li>Dismissing valid security concerns</li>
+                </ul>
+                <p><strong>Data Collected:</strong> Response times, NASA-TLX workload, re-reading patterns, scroll behavior, participant demographics</p>
+              </div>
+              
+              <div style={{display: 'flex', gap: '15px', marginTop: '20px', flexWrap: 'wrap'}}>
+                <button className="btn btn-primary" style={{flex: '1', minWidth: '200px'}}
+                  onClick={downloadJSON}>
+                  📥 Download JSON
+                </button>
+                <button className="btn btn-primary" style={{flex: '1', minWidth: '200px'}}
+                  onClick={downloadCSV}>
+                  📊 Download CSV
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+    }
+    
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
